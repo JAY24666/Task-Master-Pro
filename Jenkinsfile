@@ -48,12 +48,33 @@ pipeline {
                 }
             }
         }
-        stage('Publish Artifacts') {
+        stage("Upload Artifacts") {
             steps {
-                withMaven(globalMavenSettingsConfig: 'settings-maven', jdk: 'jdk17', maven: 'maven3', traceability: true) {
-                        sh 'mvn deploy'
-                }
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: 'nexus:8081',
+                    groupId: 'com.master',
+                    version: '0.0.1-SNAPSHOT',   // must match POM
+                    repository: 'maven-snapshots',  // snapshot repo
+                    credentialsId: 'nexus-jenkins-creds',
+                    artifacts: [
+                     [
+                        artifactId: 'todo-app',     // must match POM
+                        classifier: '',
+                        file: 'target/todo-app-1.0-SNAPSHOT.jar',
+                        type: 'jar'
+                    ]
+                    ]   
+                    // artifacts: [
+                    //     [artifactId: 'Task-Master-pro',    // must match POM
+                    //     classifier: '',
+                    //     file: 'target/Task-Master-pro-0.0.1-SNAPSHOT.jar',
+                    //     type: 'jar']
+                    // ]
+                )
             }
         }
+        
     }
 }
