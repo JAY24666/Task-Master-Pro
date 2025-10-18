@@ -75,6 +75,17 @@ pipeline {
                 )
             }
         }
-        
+        stage('Docker build and Tag') {
+            steps {
+                script{
+                withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        sh 'docker build -t ash425/taskmaster:latest .'
+                    }
+                }
+            }
+        }
     }
 }
+ 
+
+
