@@ -98,20 +98,16 @@ pipeline {
                 }
             }
         }
-        stage('K8s Deploy') {
-            steps {
-                withKubeConfig(caCertificate: '', clusterName: ' blog-cluster', contextName: '', credentialsId: 'kubeconfig-dev-kt-k8s', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://F215F65BF29C7EB75F58C53DC3D1C08C.gr7.us-east-1.eks.amazonaws.com') {
-                        sh 'kubectl apply -f deployment-service.yml'
-                        sleep 35
-                    }
+        stage('Deploy to container'){
+            steps{
+                sh 'docker run -d --name taskmaster -p 8686:80 ash425/taskmaster:latest'
             }
         }
-        stage('Verify K8s Deploy') {
+        stage ("Deploy to cluster dev-kt-k8s") {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: ' blog-cluster', contextName: '', credentialsId: 'kubeconfig-dev-kt-k8s', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://F215F65BF29C7EB75F58C53DC3D1C08C.gr7.us-east-1.eks.amazonaws.com') {
-                        sh 'kubectl get pods -n webapps'
-                        sh 'kubectl get svc -n webapps'
-                    }
+                withKubeConfig(credentialsId: 'kubeconfig-dev-kt-k8s') {
+                    sh "kubectl apply -f https://github.com/Ashok220723/Task-Master-Pro/blob/devtask/deployment-service.yml"
+                }
             }
         }
     }
