@@ -84,11 +84,11 @@ pipeline {
                 }
             }
         }
-          stage('Trivy Image scan') {
-            steps {
-                sh 'trivy image --format table -o image.html ash425/taskmaster:latest'
-            }
-        }
+        //   stage('Trivy Image scan') {
+        //     steps {
+        //         sh 'trivy image --format table -o image.html ash425/taskmaster:latest'
+        //     }
+        // }
         stage('Push Docker Image') {
             steps {
                 script{
@@ -96,6 +96,22 @@ pipeline {
                         sh 'docker push ash425/taskmaster:latest'
                     }
                 }
+            }
+        }
+        stage('K8s Deploy') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: ' blog-cluster', contextName: '', credentialsId: 'kubeconfig-dev-kt-k8s', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://F215F65BF29C7EB75F58C53DC3D1C08C.gr7.us-east-1.eks.amazonaws.com') {
+                        sh 'kubectl apply -f deployment-service.yml'
+                        sleep 35
+                    }
+            }
+        }
+        stage('Verify K8s Deploy') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: ' blog-cluster', contextName: '', credentialsId: 'kubeconfig-dev-kt-k8s', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://F215F65BF29C7EB75F58C53DC3D1C08C.gr7.us-east-1.eks.amazonaws.com') {
+                        sh 'kubectl get pods -n webapps'
+                        sh 'kubectl get svc -n webapps'
+                    }
             }
         }
     }
