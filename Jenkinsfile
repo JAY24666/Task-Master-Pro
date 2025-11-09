@@ -35,7 +35,11 @@ pipeline {
         // }     
         stage('Sonar Analysis') {
             steps {
+<<<<<<< Updated upstream
                 withSonarQubeEnv('sonar') {
+=======
+                withSonarQubeEnv('sonar-local') {
+>>>>>>> Stashed changes
                     sh '''  $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=blogging -Dsonar.projectKey=blogging \
                     -Dsonar.java.binaries=target '''
                 }
@@ -94,5 +98,29 @@ pipeline {
         //             }
         //     }
         // }
+<<<<<<< Updated upstream
+=======
+        stage('Push Docker Image') {
+            steps {
+                script{
+                withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        sh 'docker push ash425/taskmaster:latest'
+                    }
+                }
+            }
+        }
+        stage('Deploy to container'){
+            steps{
+                sh 'docker run -d --name taskmaster -p 8686:80 ash425/taskmaster:latest'
+            }
+        }
+        stage ("Deploy to cluster dev-kt-k8s") {
+            steps {
+                withKubeConfig(credentialsId: 'minikube-kubeconfig') {
+                    sh "kubectl apply -f deployment-service.yml"
+                }
+            }
+        }
+>>>>>>> Stashed changes
     }
 }
