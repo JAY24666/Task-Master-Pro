@@ -35,11 +35,7 @@ pipeline {
         // }     
         stage('Sonar Analysis') {
             steps {
-<<<<<<< Updated upstream
-                withSonarQubeEnv('sonar') {
-=======
                 withSonarQubeEnv('sonar-local') {
->>>>>>> Stashed changes
                     sh '''  $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=blogging -Dsonar.projectKey=blogging \
                     -Dsonar.java.binaries=target '''
                 }
